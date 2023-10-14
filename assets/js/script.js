@@ -139,10 +139,16 @@ document.addEventListener("DOMContentLoaded",async function () {
         reservations.forEach((reservation, index) => {
             const li = document.createElement("li");
             li.textContent = `Reserved by ${reservation.name} from ${new Date(reservation.from).toLocaleString()} to ${new Date(reservation.to).toLocaleString()}`;
+            li.style.padding="20px";
             const deleteButton = document.createElement("button");
             deleteButton.innerHTML = "&times;";
             deleteButton.className = "delete";
             deleteButton.setAttribute("data-id", reservation._id);
+            deleteButton.style.width="30px";
+            deleteButton.style.height="30px";
+            deleteButton.style.borderRadius="50%";
+            deleteButton.style.marginTop="10px";
+            deleteButton.style.marginLeft="15px";
             li.appendChild(deleteButton);
             reservationList.appendChild(li);
         });
