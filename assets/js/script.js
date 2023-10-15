@@ -39,9 +39,8 @@ document.addEventListener("DOMContentLoaded",async function () {
             alert("Please fill out all fields.");
             return;
         }
-
-        const pastCheck = await checkPastCurrent();
-        if(pastCheck.length>0 && isCurrentChecked){
+        const isPastCheck=await checkPastCurrent()
+        if(isPastCheck.length>0 && isCurrentChecked){
             alert("Stand is currently already been used, please reserve it for later");
             return;
         }
@@ -56,8 +55,14 @@ document.addEventListener("DOMContentLoaded",async function () {
             }
             data.to=new Date(toDatetime);
             data.expireAt=new Date(toDatetime);
+            const diffTime = Math.abs(data.to - data.from);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             if(new Date(data.from).getTime()>new Date(data.to).getTime()){
                 alert("Invalid Range Please Check the dates again");
+                return;
+            }
+            if(diffDays>2){
+                alert("For Once you can only choose is 2days, Please reserve again for more time");
                 return;
             }
             data.currentUser=isCurrentChecked;
@@ -67,7 +72,7 @@ document.addEventListener("DOMContentLoaded",async function () {
                 data: data,
                 success:function(response){
                     if(response.message){
-                        alert("Time Overlapping occured choose another time");
+                        alert(response.message);
                         return;
                     }
                     else{

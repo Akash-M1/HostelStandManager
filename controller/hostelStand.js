@@ -12,7 +12,7 @@ exports.createUser =async (req,res)=>{
         try {
             if(await checkOverlap(data)){
                 return res.status(200).json({
-                    message:"Time Overlap Occured"
+                    message:"Error!! Time Overlap Occured Please Choose Different Time"
                 });
             }
             else{
