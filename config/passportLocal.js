@@ -10,7 +10,7 @@ passport.use(new LocalStrategy(
     async function(req,email,password,done){
         try {
             const User = await Register.findOne({email:email});
-            if(User.password==password){
+            if(User && User.password==password){
                 return done(null,User);
             }
             else{
