@@ -9,7 +9,7 @@ router.get('/sign-up',passport.signInSignUpAuthentication,UserController.getSign
 router.post('/create-user',UserController.createUser);
 router.post('/create-session',passport.authenticate(
     'local',
-    {failureRedirect:'/user/sign-up'}
+    {failureRedirect:'/user/sign-in'}
 ),UserController.createSession);
 router.get('/sign-out',UserController.destroySession);
 
