@@ -60,7 +60,7 @@ async function checkOverlap(presentBody){
 exports.getUsers = async (req,res)=>{
     if(req.xhr){
         try {
-            const allData = await Users.find();
+            const allData = await Users.find().populate('user',['name','email']).sort({from:1});
             return res.status(200).json(allData);
         } catch (error) {
             console.log("Error occured while Fetching",error);
@@ -76,7 +76,7 @@ exports.getUsers = async (req,res)=>{
 exports.getCurrent =async (req,res)=>{
     if(req.xhr){
         try {
-            const allData = await Users.find({currentUser:true});
+            const allData = await Users.find({currentUser:true}).populate('user','name');
             return res.status(200).json(allData);
         } catch (error) {
             console.log("Error occured while Fetching",error);
@@ -91,8 +91,17 @@ exports.getCurrent =async (req,res)=>{
 exports.deleteUser=async (req,res)=>{
     if(req.xhr){
         try {
-            const delData = await Users.findByIdAndDelete(req.body.id);
-            return res.status(200).json(delData);
+            const delUser = await Users.findById(req.body.id);
+            if(delUser.user == req.user.id){
+                const delData = await Users.findByIdAndDelete(req.body.id);
+                return res.status(200).json(delData);
+            }
+            else{
+                return res.status(200).json({
+                    message:"Error!! You cannot delete this Reservation"
+                })
+            }
+            
         } catch (error) {
             console.log("Error occured while Deleting",error);
             return res.status(404).json({

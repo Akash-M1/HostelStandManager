@@ -4,12 +4,13 @@ document.addEventListener("DOMContentLoaded",async function () {
     const reservationList = document.getElementById("reservation-list");
     const fromDatetimeField = document.getElementById("from-datetime");
     const toOnlyCheckbox = document.getElementById("to-only");
+    const userId = document.getElementById('uid').value;
 
     await displayReservations();
 
     let currentReserver = await checkPastCurrent();
     if(currentReserver.length==1){
-        currentReserver=currentReserver[0].name;
+        currentReserver=currentReserver[0].user.name;
     }
     else{
         currentReserver="None";
@@ -30,23 +31,22 @@ document.addEventListener("DOMContentLoaded",async function () {
     reservationForm.addEventListener("submit",async function (e) {
         e.preventDefault();
 
-        const name = document.getElementById("name").value;
         const fromDatetime = fromDatetimeField.value;
         const toDatetime = document.getElementById("to-datetime").value;
         const isCurrentChecked = toOnlyCheckbox.checked;
 
-        if (!name || (!toOnlyCheckbox.checked && !fromDatetime) || !toDatetime) {
+        if ((!toOnlyCheckbox.checked && !fromDatetime) || !toDatetime) {
             alert("Please fill out all fields.");
             return;
         }
-        const isPastCheck=await checkPastCurrent()
+        const isPastCheck=await checkPastCurrent();
         if(isPastCheck.length>0 && isCurrentChecked){
             alert("Stand is currently already been used, please reserve it for later");
             return;
         }
         else{
             const data = new Object();
-            data.name=name;
+            data.user=userId;
             if(toOnlyCheckbox.checked){
                 data.from=new Date();
             }
@@ -115,7 +115,11 @@ document.addEventListener("DOMContentLoaded",async function () {
                 url: "/stand/delete-user",
                 data: {id:delId},
                 success:function(response){
-                    if(response.currentUser){
+                    if(response.message){
+                        alert(response.message);
+                        return;
+                    }
+                    else if(response.currentUser){
                         currentUser.textContent = "None";
                     }
                     displayReservations();
@@ -143,18 +147,20 @@ document.addEventListener("DOMContentLoaded",async function () {
         });
         reservations.forEach((reservation, index) => {
             const li = document.createElement("li");
-            li.textContent = `Reserved by ${reservation.name} from ${new Date(reservation.from).toLocaleString()} to ${new Date(reservation.to).toLocaleString()}`;
+            li.textContent = `Reserved by ${reservation.user.name} from ${new Date(reservation.from).toLocaleString()} to ${new Date(reservation.to).toLocaleString()}`;
             li.style.padding="20px";
-            const deleteButton = document.createElement("button");
-            deleteButton.innerHTML = "&times;";
-            deleteButton.className = "delete";
-            deleteButton.setAttribute("data-id", reservation._id);
-            deleteButton.style.width="30px";
-            deleteButton.style.height="30px";
-            deleteButton.style.borderRadius="50%";
-            deleteButton.style.marginTop="10px";
-            deleteButton.style.marginLeft="15px";
-            li.appendChild(deleteButton);
+            if(reservation.user._id==userId){
+                const deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "&times;";
+                deleteButton.className = "delete";
+                deleteButton.setAttribute("data-id", reservation._id);
+                deleteButton.style.width="30px";
+                deleteButton.style.height="30px";
+                deleteButton.style.borderRadius="50%";
+                deleteButton.style.marginTop="10px";
+                deleteButton.style.marginLeft="15px";
+                li.appendChild(deleteButton);
+            }
             reservationList.appendChild(li);
         });
     }
